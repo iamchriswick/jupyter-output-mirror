@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: compile",
+      "type": "shell",
+      "command": "node node_modules/typescript/bin/tsc -p .",
+      "problemMatcher": "$tsc",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "nuke",
+      "type": "shell",
+      "command": "rm -rf out node_modules && git clean -xfd -e .vscode -q && npm cache verify",
+      "problemMatcher": []
+    },
+    {
+      "label": "rebuild",
+      "type": "shell",
+      "command": "[ -f package-lock.json ] && npm ci || npm install; npm run compile",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "nuke-rebuild",
+      "dependsOn": ["nuke", "rebuild"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

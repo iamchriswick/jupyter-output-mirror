@@ -2,8 +2,8 @@
   "name": "jupyter-output-mirror",
   "displayName": "Jupyter Output Mirror",
   "description": "Mirror Jupyter Notebook stdout/stderr to a VS Code Output channel.",
-  "publisher": "yourid",
-  "version": "0.0.2",
+  "publisher": "iamchriswick",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -11,6 +11,10 @@
     "Notebooks"
   ],
   "main": "./out/extension.js",
+  "extensionDependencies": [
+    "ms-toolsai.jupyter",
+    "ms-python.python"
+  ],
   "activationEvents": [
     "onStartupFinished",
     "onNotebook:*"
@@ -75,6 +79,16 @@
           "default": 65536,
           "minimum": 1024,
           "description": "Maximum characters appended per change to prevent floods."
+        },
+        "jupyterOutputMirror.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Write verbose debug messages to Debug Console and the Output channel."
+        },
+        "jupyterOutputMirror.includeSourceContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include source context line (e.g. \"[stdout] path/to/notebook.ipynb #cell\") before outputs."
         }
       }
     }
