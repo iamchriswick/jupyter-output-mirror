@@ -13,9 +13,7 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onStartupFinished",
-    "onNotebook:*",
-    "onCommand:jupyterOutputMirror.toggle",
-    "onCommand:jupyterOutputMirror.clear"
+    "onNotebook:*"
   ],
   "contributes": {
     "commands": [
