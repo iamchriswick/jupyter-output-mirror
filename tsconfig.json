@@ -9,7 +9,10 @@
     "strict": true,
     "sourceMap": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "types": ["node", "vscode"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["out", "node_modules"]
 }

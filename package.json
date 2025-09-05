@@ -28,6 +28,14 @@
       {
         "command": "jupyterOutputMirror.clear",
         "title": "Jupyter Output Mirror: Clear Output Channel(s)"
+      },
+      {
+        "command": "jupyterOutputMirror.createDemo",
+        "title": "Jupyter Output Mirror: Create Demo Notebook"
+      },
+      {
+        "command": "jupyterOutputMirror.showQuickStart",
+        "title": "Jupyter Output Mirror: Open QuickStart"
       }
     ],
     "configuration": {
@@ -100,8 +108,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
-    "@types/vscode": "1.84.0",
-    "typescript": "^5.4.5",
-    "@vscode/vsce": "^2.15.0"
+    "@vscode/vsce": "^2.15.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@types/vscode": "^1.84.0"
   }
 }

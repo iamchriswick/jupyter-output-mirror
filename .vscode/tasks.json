@@ -13,20 +13,42 @@
     {
       "label": "nuke",
       "type": "shell",
-      "command": "rm -rf out node_modules && git clean -xfd -e .vscode -q && npm cache verify",
-      "problemMatcher": []
+      "command": "rm -rf out node_modules && rm package-lock.json && git clean -xfd -e .vscode -q && npm cache verify",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "bootstrap",
+      "type": "shell",
+      "command": "[ -f package-lock.json ] && npm ci || npm install; npm run compile",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     },
     {
       "label": "rebuild",
       "type": "shell",
-      "command": "[ -f package-lock.json ] && npm ci || npm install; npm run compile",
-      "problemMatcher": ["$tsc"]
+      "command": "npm install; npm run compile",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
     },
     {
       "label": "nuke-rebuild",
       "dependsOn": ["nuke", "rebuild"],
       "dependsOrder": "sequence",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
     }
   ]
 }
