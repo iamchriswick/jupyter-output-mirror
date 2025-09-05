@@ -2,20 +2,21 @@
   "name": "jupyter-output-mirror",
   "displayName": "Jupyter Output Mirror",
   "description": "Mirror Jupyter Notebook stdout/stderr to a VS Code Output channel.",
-  "publisher": "iamchriswick",
-  "version": "0.0.1",
+  "publisher": "yourid",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.84.0"
   },
   "categories": [
     "Notebooks"
   ],
+  "main": "./out/extension.js",
   "activationEvents": [
+    "onStartupFinished",
     "onNotebook:*",
     "onCommand:jupyterOutputMirror.toggle",
     "onCommand:jupyterOutputMirror.clear"
   ],
-  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
@@ -24,12 +25,33 @@
       },
       {
         "command": "jupyterOutputMirror.clear",
-        "title": "Jupyter Output Mirror: Clear Output Channel"
+        "title": "Jupyter Output Mirror: Clear Output Channel(s)"
       }
     ],
     "configuration": {
       "title": "Jupyter Output Mirror",
       "properties": {
+        "jupyterOutputMirror.channelMode": {
+          "type": "string",
+          "enum": [
+            "single",
+            "perNotebook"
+          ],
+          "default": "single",
+          "description": "Use one Output channel for everything or a separate channel per notebook."
+        },
+        "jupyterOutputMirror.debounceMs": {
+          "type": "number",
+          "default": 50,
+          "minimum": 0,
+          "maximum": 5000,
+          "description": "Debounce window (ms) to coalesce rapid output changes. Set 0 to disable."
+        },
+        "jupyterOutputMirror.clearOnNotebookClear": {
+          "type": "boolean",
+          "default": false,
+          "description": "When a notebook's outputs are cleared, also clear its mirrored Output channel."
+        },
         "jupyterOutputMirror.includeTextPlain": {
           "type": "boolean",
           "default": false,
@@ -67,7 +89,7 @@
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/vscode": "1.84.0",
-    "@vscode/vsce": "^3.6.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@vscode/vsce": "^2.15.0"
   }
 }
