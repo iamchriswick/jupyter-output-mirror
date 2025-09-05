@@ -2,7 +2,7 @@
   "name": "jupyter-output-mirror",
   "displayName": "Jupyter Output Mirror",
   "description": "Mirror Jupyter Notebook stdout/stderr to a VS Code Output channel.",
-  "publisher": "yourid",
+  "publisher": "iamchriswick",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
