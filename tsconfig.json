@@ -14,5 +14,5 @@
     "types": ["node", "vscode"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["out", "node_modules"]
+  "exclude": ["out", "node_modules", "src/**/*.html"]
 }

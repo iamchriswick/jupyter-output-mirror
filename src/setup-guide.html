@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jupyter Output Mirror - Setup Guide</title>
+    <style>
+      :root {
+        --vscode-font-family: var(--vscode-font-family);
+        --container-paddding: 20px;
+        --input-padding-vertical: 6px;
+        --input-padding-horizontal: 4px;
+        --input-margin-vertical: 2px;
+        --input-margin-horizontal: 0;
+      }
+
+      body {
+        padding: 0 var(--container-paddding);
+        color: var(--vscode-foreground);
+        font-size: var(--vscode-font-size);
+        font-weight: var(--vscode-font-weight);
+        font-family: var(--vscode-font-family);
+        background-color: var(--vscode-editor-background);
+        line-height: 1.6;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--vscode-foreground);
+      }
+
+      .hero {
+        text-align: center;
+        margin: 2rem 0;
+        padding: 2rem;
+        background: var(--vscode-textBlockQuote-background);
+        border-radius: 8px;
+        border-left: 4px solid var(--vscode-textLink-foreground);
+      }
+
+      .hero h1 {
+        margin: 0 0 1rem 0;
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+      }
+
+      .feature-card {
+        padding: 1.5rem;
+        background: var(--vscode-textBlockQuote-background);
+        border-radius: 6px;
+        border: 1px solid var(--vscode-textBlockQuote-border);
+      }
+
+      .setting-control {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--vscode-textCodeBlock-background);
+        border-radius: 6px;
+        border: 1px solid var(--vscode-textBlockQuote-border);
+      }
+
+      .setting-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .setting-name {
+        font-weight: bold;
+        color: var(--vscode-textLink-foreground);
+      }
+
+      .setting-description {
+        color: var(--vscode-descriptionForeground);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      .demo-section {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: var(--vscode-textBlockQuote-background);
+        border-radius: 8px;
+        border-left: 4px solid var(--vscode-charts-blue);
+      }
+
+      .notebook-cell {
+        margin: 1rem 0;
+        border: 1px solid var(--vscode-textBlockQuote-border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .cell-header {
+        background: var(--vscode-badge-background);
+        color: var(--vscode-badge-foreground);
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .cell-content {
+        padding: 1rem;
+        background: var(--vscode-textCodeBlock-background);
+        position: relative;
+      }
+
+      .cell-content pre {
+        margin: 0;
+        color: var(--vscode-foreground);
+        font-family: var(--vscode-editor-font-family);
+      }
+
+      .copy-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border: none;
+        padding: 0.3rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .copy-button:hover {
+        background: var(--vscode-button-hoverBackground);
+      }
+
+      /* Interactive Notebook Cell Styles */
+      .interactive-notebook-cell {
+        margin: 1rem 0;
+        border: 1px solid var(--vscode-textBlockQuote-border);
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--vscode-textCodeBlock-background);
+      }
+
+      .interactive-notebook-cell .cell-header {
+        background: var(--vscode-editor-background);
+        color: var(--vscode-foreground);
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--vscode-textBlockQuote-border);
+      }
+
+      .cell-type-badge {
+        background: var(--vscode-textLink-foreground);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        margin-right: 0.5rem;
+      }
+
+      .cell-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .run-cell-button {
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .run-cell-button:hover {
+        background: var(--vscode-button-hoverBackground);
+      }
+
+      .run-cell-button.running {
+        background: var(--vscode-charts-orange);
+        color: white;
+      }
+
+      .code-editor {
+        background: var(--vscode-editor-background);
+        color: var(--vscode-editor-foreground);
+        font-family: var(--vscode-editor-font-family);
+        font-size: 0.9rem;
+        padding: 1rem;
+        border: none;
+        outline: none;
+        white-space: pre;
+        overflow-x: auto;
+        min-height: 100px;
+        line-height: 1.4;
+      }
+
+      .code-editor:focus {
+        background: var(--vscode-editor-background);
+        outline: 1px solid var(--vscode-focusBorder);
+      }
+
+      .cell-output {
+        background: var(--vscode-terminal-background);
+        color: var(--vscode-terminal-foreground);
+        font-family: var(--vscode-editor-font-family);
+        font-size: 0.85rem;
+        padding: 0.8rem;
+        border-top: 1px solid var(--vscode-textBlockQuote-border);
+        white-space: pre-wrap;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .cell-output.success {
+        border-left: 3px solid var(--vscode-charts-green);
+      }
+
+      .cell-output.error {
+        border-left: 3px solid var(--vscode-charts-red);
+        color: var(--vscode-errorForeground);
+      }
+
+      .action-button {
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin: 0.5rem 0.5rem 0.5rem 0;
+        transition: background-color 0.2s;
+      }
+
+      .action-button:hover {
+        background: var(--vscode-button-hoverBackground);
+      }
+
+      .action-button.secondary {
+        background: var(--vscode-button-secondaryBackground);
+        color: var(--vscode-button-secondaryForeground);
+      }
+
+      .action-button.secondary:hover {
+        background: var(--vscode-button-secondaryHoverBackground);
+      }
+
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--vscode-textBlockQuote-border);
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: var(--vscode-foreground);
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--vscode-textLink-foreground);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .status-indicator {
+        display: inline-block;
+        padding: 0.2rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .status-enabled {
+        background: var(--vscode-charts-green);
+        color: white;
+      }
+
+      .status-disabled {
+        background: var(--vscode-charts-red);
+        color: white;
+      }
+
+      .output-preview {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--vscode-terminal-background);
+        color: var(--vscode-terminal-foreground);
+        border-radius: 4px;
+        font-family: var(--vscode-editor-font-family);
+        font-size: 0.9rem;
+        border: 1px solid var(--vscode-textBlockQuote-border);
+      }
+
+      .timestamp {
+        color: var(--vscode-charts-blue);
+      }
+
+      .context-info {
+        color: var(--vscode-charts-purple);
+      }
+
+      .stdout {
+        color: var(--vscode-charts-green);
+      }
+
+      .stderr {
+        color: var(--vscode-charts-red);
+      }
+
+      .quick-actions {
+        margin: 2rem 0;
+        text-align: center;
+      }
+
+      .icon {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Hero Section -->
+    <div class="hero">
+      <h1>🚀 Jupyter Output Mirror</h1>
+      <p>Real-time stdout/stderr mirroring for Jupyter notebooks in VS Code</p>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>🔄 Real-time Mirroring</h3>
+        <p>
+          See stdout/stderr outputs in VS Code's Output panel as they happen
+        </p>
+      </div>
+      <div class="feature-card">
+        <h3>⚙️ Highly Configurable</h3>
+        <p>Timestamps, ANSI stripping, channel modes, and more</p>
+      </div>
+      <div class="feature-card">
+        <h3>📊 Multiple Output Types</h3>
+        <p>Supports stdout, stderr, and text/plain outputs</p>
+      </div>
+      <div class="feature-card">
+        <h3>🎯 Smart Focusing</h3>
+        <p>Option to mirror only from the active notebook</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>🎯 Quick Start</h2>
+      <button class="action-button secondary" onclick="openOutputChannel()">
+        <span class="icon">📊</span>Open Output Channel
+      </button>
+    </div>
+
+    <!-- Interactive Settings -->
+    <div class="demo-section">
+      <h2>⚙️ Interactive Settings Configuration</h2>
+      <p>
+        Try changing these settings and see how they affect the output preview
+        below:
+      </p>
+
+      <!-- Timestamp Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Timestamps</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="timestamp-toggle"
+              checked
+              onchange="updateSetting('timestamp', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Add ISO timestamps to each output line for better debugging
+        </div>
+
+        <!-- Interactive notebook cell for testing timestamps -->
+        <div class="interactive-notebook-cell" style="margin-top: 1rem">
+          <div class="cell-header">
+            <span class="cell-type-badge">Python</span>
+            Test Timestamps - Run this cell and check the Output channel
+            <div class="cell-actions">
+              <button
+                class="run-cell-button"
+                onclick="runNotebookCell('timestamp-example')"
+              >
+                <span class="icon">▶️</span> Run Cell
+              </button>
+              <button
+                class="copy-button"
+                onclick="copyToClipboard('timestamp-example')"
+              >
+                <span class="icon">📋</span> Copy
+              </button>
+            </div>
+          </div>
+          <div class="cell-content">
+            <div
+              class="code-editor"
+              contenteditable="true"
+              id="timestamp-example"
+              spellcheck="false"
+            >
+              import time import sys print("Testing timestamp output...")
+              time.sleep(0.5) print("Message 1: Check if timestamps appear")
+              time.sleep(0.5) sys.stderr.write("Error message: Also check stderr
+              timestamps\n") print("Message 2: Toggle the timestamp setting
+              above and re-run!")
+            </div>
+            <div
+              class="cell-output"
+              id="timestamp-example-output"
+              style="display: none"
+            >
+              <!-- Cell execution results will appear here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Source Context Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Include Source Context</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="context-toggle"
+              checked
+              onchange="updateSetting('includeSourceContext', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Show which notebook and cell produced each output
+        </div>
+
+        <!-- Inline notebook cell for testing source context -->
+        <div class="notebook-cell" style="margin-top: 1rem">
+          <div class="cell-header">
+            Test Source Context - Check if cell info appears in Output
+          </div>
+          <div class="cell-content">
+            <button
+              class="copy-button"
+              onclick="copyToClipboard('context-example')"
+            >
+              Copy
+            </button>
+            <pre id="context-example">
+# Test source context display
+print("This output should show the notebook name and cell info")
+print("Toggle 'Include Source Context' setting above to see the difference")
+
+# Create multiple outputs to see the context info
+for i in range(3):
+    print(f"Output line {i+1} - context info should appear with each line")</pre
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Notebook Only Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Active Notebook Only</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="active-only-toggle"
+              checked
+              onchange="updateSetting('activeNotebookOnly', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Mirror outputs only from the currently focused notebook
+        </div>
+
+        <!-- Inline notebook cell for testing active notebook filter -->
+        <div class="notebook-cell" style="margin-top: 1rem">
+          <div class="cell-header">
+            Test Active Notebook Filter - Try opening multiple notebooks
+          </div>
+          <div class="cell-content">
+            <button
+              class="copy-button"
+              onclick="copyToClipboard('active-notebook-example')"
+            >
+              Copy
+            </button>
+            <pre id="active-notebook-example">
+import time
+
+print("=== Active Notebook Test ===")
+print(f"Current time: {time.strftime('%H:%M:%S')}")
+print("Run this in multiple open notebooks")
+print("With 'Active Notebook Only' enabled, only the focused notebook's output should appear")
+print("With it disabled, all notebook outputs will be mirrored")
+
+# Add a unique identifier to distinguish between notebooks
+import os
+notebook_id = f"Notebook-{hash(os.getcwd()) % 1000}"
+print(f"This output is from: {notebook_id}")</pre
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Strip ANSI Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Strip ANSI Colors</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="strip-ansi-toggle"
+              checked
+              onchange="updateSetting('stripAnsi', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Remove color codes from output for cleaner text
+        </div>
+
+        <!-- Inline notebook cell for testing ANSI stripping -->
+        <div class="notebook-cell" style="margin-top: 1rem">
+          <div class="cell-header">
+            Test ANSI Color Stripping - See colored vs plain output
+          </div>
+          <div class="cell-content">
+            <button
+              class="copy-button"
+              onclick="copyToClipboard('ansi-example')"
+            >
+              Copy
+            </button>
+            <pre id="ansi-example">
+# Test ANSI color codes
+import sys
+
+# ANSI color codes
+RED = '\033[91m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+RESET = '\033[0m'
+
+print(f"{RED}This text should be red (if ANSI stripping is off){RESET}")
+print(f"{GREEN}This text should be green{RESET}")
+print(f"{BLUE}This text should be blue{RESET}")
+print(f"{YELLOW}This text should be yellow{RESET}")
+
+sys.stderr.write(f"{RED}Error with color codes{RESET}\n")
+print("Toggle 'Strip ANSI Colors' to see the difference in the Output channel!")</pre
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Mode Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Channel Mode</span>
+          <select
+            id="channel-mode-select"
+            onchange="updateSetting('channelMode', this.value)"
+            style="
+              background: var(--vscode-dropdown-background);
+              color: var(--vscode-dropdown-foreground);
+              border: 1px solid var(--vscode-dropdown-border);
+              padding: 0.3rem;
+              border-radius: 2px;
+              font-family: inherit;
+            "
+          >
+            <option value="single">Single Channel</option>
+            <option value="perNotebook">Per-Notebook Channels</option>
+          </select>
+        </div>
+        <div class="setting-description">
+          Choose between a single "Jupyter Output Mirror" channel or separate
+          channels per notebook file
+        </div>
+
+        <!-- Inline notebook cell for testing channel mode -->
+        <div class="notebook-cell" style="margin-top: 1rem">
+          <div class="cell-header">
+            Test Channel Mode - Open multiple notebooks and check Output
+            channels
+          </div>
+          <div class="cell-content">
+            <button
+              class="copy-button"
+              onclick="copyToClipboard('channel-mode-example')"
+            >
+              Copy
+            </button>
+            <pre id="channel-mode-example">
+import os
+import time
+
+# Test channel mode behavior
+notebook_name = os.path.basename(os.getcwd())
+print(f"Output from notebook: {notebook_name}")
+print("=== Channel Mode Test ===")
+print("Single Channel: All outputs appear in 'Jupyter Output Mirror'")
+print("Per-Notebook: Each notebook gets its own 'Jupyter Output Mirror: path/to/file.ipynb' channel")
+
+# Add timestamp to distinguish outputs
+print(f"Timestamp: {time.strftime('%H:%M:%S')}")
+print("Open multiple notebooks and run this cell to see the difference!")</pre
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Debounce Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Debounce (ms)</span>
+          <input
+            type="number"
+            id="debounce-input"
+            min="0"
+            max="5000"
+            step="50"
+            value="50"
+            onchange="updateSetting('debounceMs', parseInt(this.value))"
+            style="
+              background: var(--vscode-input-background);
+              color: var(--vscode-input-foreground);
+              border: 1px solid var(--vscode-input-border);
+              padding: 0.3rem;
+              border-radius: 2px;
+              font-family: inherit;
+              box-sizing: border-box;
+              min-width: 100px;
+            "
+          />
+        </div>
+        <div class="setting-description">
+          Delay in milliseconds before outputting text (helps batch rapid
+          outputs)
+        </div>
+      </div>
+
+      <!-- Max Chunk Size Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Max Chunk Size</span>
+          <input
+            type="number"
+            id="max-chunk-input"
+            min="100"
+            max="50000"
+            step="100"
+            value="8192"
+            onchange="updateSetting('maxChunkSize', parseInt(this.value))"
+            style="
+              background: var(--vscode-input-background);
+              color: var(--vscode-input-foreground);
+              border: 1px solid var(--vscode-input-border);
+              padding: 0.3rem;
+              border-radius: 2px;
+              font-family: inherit;
+              box-sizing: border-box;
+              min-width: 100px;
+            "
+          />
+        </div>
+        <div class="setting-description">
+          Maximum characters per output chunk (larger chunks may be split)
+        </div>
+      </div>
+
+      <!-- Clear On Notebook Clear Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Clear On Notebook Clear</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="clear-on-notebook-clear-toggle"
+              onchange="updateSetting('clearOnNotebookClear', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          When a notebook's outputs are cleared, also clear its mirrored Output
+          channel
+        </div>
+      </div>
+
+      <!-- Include Text Plain Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Include Text/Plain</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="include-text-plain-toggle"
+              onchange="updateSetting('includeTextPlain', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Also mirror text/plain outputs (not just stdout/stderr)
+        </div>
+      </div>
+
+      <!-- Debug Setting -->
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Debug Mode</span>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="debug-toggle"
+              onchange="updateSetting('debug', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-description">
+          Write verbose debug messages to Debug Console and the Output channel
+        </div>
+      </div>
+
+      <!-- Reset Settings Button -->
+      <div class="reset-section" style="margin: 2rem 0; text-align: center">
+        <button
+          class="action-button secondary"
+          onclick="resetSettingsToDefault()"
+          style="
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-button-secondaryBorder, transparent);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+          "
+          onmouseover="this.style.backgroundColor='var(--vscode-button-secondaryHoverBackground)'"
+          onmouseout="this.style.backgroundColor='var(--vscode-button-secondaryBackground)'"
+        >
+          <span class="icon">🔄</span>Reset Settings to Default
+        </button>
+      </div>
+
+      <!-- Live Preview -->
+      <h3>📋 Output Preview</h3>
+      <div class="output-preview" id="output-preview">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+
+    <!-- Demo Notebook Cells -->
+    <div class="demo-section">
+      <h2>📓 Try These Notebook Examples</h2>
+      <p>
+        Run these interactive cells directly to see the extension in action:
+      </p>
+
+      <!-- Basic Example -->
+      <div class="interactive-notebook-cell">
+        <div class="cell-header">
+          <span class="cell-type-badge">Python</span>
+          Basic Example - Test stdout and stderr output
+          <div class="cell-actions">
+            <button class="run-cell-button" onclick="runNotebookCell('basic-example')">
+              <span class="icon">▶️</span> Run Cell
+            </button>
+            <button class="copy-button" onclick="copyToClipboard('basic-example')">
+              <span class="icon">📋</span> Copy
+            </button>
+          </div>
+        </div>
+        <div class="cell-content">
+          <div class="code-editor" contenteditable="true" id="basic-example" spellcheck="false">import sys
+import time
+
+print("Hello from stdout!")
+sys.stderr.write("Hello from stderr!\n")
+print("Processing...")
+time.sleep(1)
+print("✅ Complete!")</div>
+          <div class="cell-output" id="basic-example-output" style="display: none;">
+            <!-- Cell execution results will appear here -->
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+
+      <!-- Advanced Example -->
+      <div class="interactive-notebook-cell">
+        <div class="cell-header">
+          <span class="cell-type-badge">Python</span>
+          Advanced Example - Multiple output types and warnings
+          <div class="cell-actions">
+            <button class="run-cell-button" onclick="runNotebookCell('advanced-example')">
+              <span class="icon">▶️</span> Run Cell
+            </button>
+            <button class="copy-button" onclick="copyToClipboard('advanced-example')">
+              <span class="icon">📋</span> Copy
+            </button>
+          </div>
+        </div>
+        <div class="cell-content">
+          <div class="code-editor" contenteditable="true" id="advanced-example" spellcheck="false"># Test multiple output types
+import sys
+import json
+
+print("=== Testing Output Types ===")
+for i in range(3):
+    print(f"Step {i+1}: Processing...")
+    if i == 1:
+        sys.stderr.write("⚠️  Warning: Test warning message\n")
+
+data = {"status": "success", "items": 42}
+print("Result:", json.dumps(data, indent=2))</div>
+          <div class="cell-output" id="advanced-example-output" style="display: none;">
+            <!-- Cell execution results will appear here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Streaming Example -->
+      <div class="interactive-notebook-cell">
+        <div class="cell-header">
+          <span class="cell-type-badge">Python</span>
+          Streaming Example - Real-time output updates
+          <div class="cell-actions">
+            <button class="run-cell-button" onclick="runNotebookCell('streaming-example')">
+              <span class="icon">▶️</span> Run Cell
+            </button>
+            <button class="copy-button" onclick="copyToClipboard('streaming-example')">
+              <span class="icon">📋</span> Copy
+            </button>
+          </div>
+        </div>
+        <div class="cell-content">
+          <div class="code-editor" contenteditable="true" id="streaming-example" spellcheck="false"># Test streaming and real-time updates
+import time
+import sys
+
+print("🚀 Starting streaming demo...")
+for i in range(5):
+    print(f"⏳ Progress: {i+1}/5", end="")
+    time.sleep(0.5)
+    print(" ✓")
+
+print("\n🎉 Streaming complete!")
+sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</div>
+          <div class="cell-output" id="streaming-example-output" style="display: none;">
+            <!-- Cell execution results will appear here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configuration Guide -->
+    <div class="demo-section">
+      <h2>🔧 Configuration Options</h2>
+      <p>
+        Open VS Code Settings (<kbd>Ctrl+,</kbd>) and search for "Jupyter Output
+        Mirror" to access these options:
+      </p>
+
+      <div class="setting-control">
+        <div class="setting-name">Channel Mode</div>
+        <div class="setting-description">
+          <strong>single</strong>: Use one shared output channel for all
+          notebooks<br />
+          <strong>perNotebook</strong>: Create separate channels for each
+          notebook
+        </div>
+      </div>
+
+      <div class="setting-control">
+        <div class="setting-name">Debounce (ms)</div>
+        <div class="setting-description">
+          Delay between output updates (default: 50ms). Increase for high-volume
+          outputs.
+        </div>
+      </div>
+
+      <div class="setting-control">
+        <div class="setting-name">Max Chunk Size</div>
+        <div class="setting-description">
+          Maximum characters per output chunk (default: 65536). Prevents output
+          flooding.
+        </div>
+      </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="demo-section">
+      <h2>🔍 Troubleshooting</h2>
+
+      <div class="setting-control">
+        <div class="setting-name">Not seeing outputs?</div>
+        <div class="setting-description">
+          • Ensure Jupyter extension is installed and working<br />
+          • Check extension is enabled:
+          <code>Jupyter Output Mirror: Toggle</code><br />
+          • Verify your code actually produces stdout/stderr
+        </div>
+      </div>
+
+      <div class="setting-control">
+        <div class="setting-name">Too much output?</div>
+        <div class="setting-description">
+          • Adjust "Max Chunk Size" setting<br />
+          • Increase debounce delay<br />
+          • Enable "Active Notebook Only" mode
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the VS Code API
+      const vscode = acquireVsCodeApi();
+
+      // Current settings state
+      let currentSettings = {
+        timestamp: true,
+        includeSourceContext: true,
+        activeNotebookOnly: true,
+        stripAnsi: true,
+        channelMode: "single",
+        debounceMs: 50,
+        maxChunkSize: 8192,
+        clearOnNotebookClear: false,
+        includeTextPlain: false,
+        debug: false,
+      };
+
+      // Default settings for reset functionality
+      const defaultSettings = {
+        timestamp: true,
+        includeSourceContext: true,
+        activeNotebookOnly: true,
+        stripAnsi: true,
+        channelMode: "single",
+        debounceMs: 50,
+        maxChunkSize: 8192,
+        clearOnNotebookClear: false,
+        includeTextPlain: false,
+        debug: false,
+      };
+
+      function updateSetting(settingName, value) {
+        currentSettings[settingName] = value;
+
+        // Send setting update to VS Code
+        vscode.postMessage({
+          command: "updateSetting",
+          setting: `jupyterOutputMirror.${settingName}`,
+          value: value,
+        });
+
+        // Update the preview
+        updateOutputPreview();
+      }
+
+      function updateOutputPreview() {
+        const preview = document.getElementById("output-preview");
+        const timestamp = currentSettings.timestamp
+          ? "[2025-09-05T15:30:45.123Z] "
+          : "";
+        const context = currentSettings.includeSourceContext
+          ? "[stdout] demo.ipynb #2"
+          : "";
+
+        let output = "";
+
+        if (currentSettings.timestamp) {
+          output += '<span class="timestamp">' + timestamp + "</span>";
+        }
+
+        if (currentSettings.includeSourceContext) {
+          output += '<span class="context-info">' + context + "</span>";
+          if (currentSettings.timestamp) output += "<br>";
+        }
+
+        output += '<span class="stdout">Hello from stdout!</span><br>';
+
+        if (currentSettings.timestamp) {
+          output +=
+            '<span class="timestamp">[2025-09-05T15:30:45.124Z] </span>';
+        }
+
+        if (currentSettings.includeSourceContext) {
+          output += '<span class="context-info">[stderr] demo.ipynb #2</span>';
+          if (currentSettings.timestamp) output += "<br>";
+        }
+
+        output += '<span class="stderr">Warning: Test message</span>';
+
+        preview.innerHTML = output;
+      }
+
+      function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        // Handle both regular pre elements and editable code editors
+        const text = element.textContent || element.innerText;
+
+        navigator.clipboard.writeText(text).then(() => {
+          // Show feedback
+          const button = element
+            .closest(".cell-content, .cell-actions")
+            ?.querySelector(".copy-button");
+          if (button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="icon">✅</span> Copied!';
+            setTimeout(() => {
+              button.innerHTML = originalText;
+            }, 2000);
+          }
+        });
+      }
+
+      function runNotebookCell(cellId) {
+        const codeEditor = document.getElementById(cellId);
+        const runButton = codeEditor
+          .closest(".interactive-notebook-cell")
+          ?.querySelector(".run-cell-button");
+        const outputDiv = document.getElementById(cellId + "-output");
+
+        if (!codeEditor || !runButton || !outputDiv) {
+          console.error("Could not find cell elements for", cellId);
+          return;
+        }
+
+        // Get the code content
+        const code = codeEditor.textContent || codeEditor.innerText;
+
+        // Update button state
+        const originalButtonContent = runButton.innerHTML;
+        runButton.innerHTML = '<span class="icon">⏳</span> Running...';
+        runButton.classList.add("running");
+        runButton.disabled = true;
+
+        // Show output area
+        outputDiv.style.display = "block";
+        outputDiv.innerHTML = "Executing cell...";
+        outputDiv.className = "cell-output";
+
+        // Send execution request to extension
+        vscode.postMessage({
+          command: "executeNotebookCell",
+          cellId: cellId,
+          code: code,
+        });
+
+        // Reset button after a timeout (in case the execution doesn't respond)
+        setTimeout(() => {
+          if (runButton.disabled) {
+            runButton.innerHTML = originalButtonContent;
+            runButton.classList.remove("running");
+            runButton.disabled = false;
+          }
+        }, 30000); // 30 second timeout
+      }
+
+      // Handle execution results from the extension
+      function handleCellExecutionResult(cellId, success, output, error) {
+        const runButton = document
+          .querySelector(`#${cellId}`)
+          .closest(".interactive-notebook-cell")
+          ?.querySelector(".run-cell-button");
+        const outputDiv = document.getElementById(cellId + "-output");
+
+        if (runButton) {
+          runButton.innerHTML = '<span class="icon">▶️</span> Run Cell';
+          runButton.classList.remove("running");
+          runButton.disabled = false;
+        }
+
+        if (outputDiv) {
+          if (success) {
+            outputDiv.className = "cell-output success";
+            outputDiv.innerHTML =
+              output ||
+              "Cell executed successfully. Check the Output channel for results.";
+          } else {
+            outputDiv.className = "cell-output error";
+            outputDiv.innerHTML =
+              error ||
+              "Execution failed. Check the Output channel for details.";
+          }
+        }
+      }
+
+      function openOutputChannel() {
+        vscode.postMessage({
+          command: "openOutput",
+        });
+      }
+
+      // Initialize the preview
+      updateOutputPreview();
+
+      // Cell execution handlers
+      function handleCellExecutionStarted(cellId) {
+        const runButton = document.querySelector(`#${cellId}`)
+          ?.closest(".interactive-notebook-cell")
+          ?.querySelector(".run-cell-button");
+        const outputDiv = document.getElementById(cellId + "-output");
+
+        if (runButton) {
+          runButton.disabled = true;
+          runButton.innerHTML = '<span class="icon">⏳</span> Running...';
+        }
+
+        if (outputDiv) {
+          outputDiv.style.display = "block";
+          outputDiv.innerHTML = '<div class="execution-status">Starting execution...</div>';
+        }
+      }
+
+      function handleCellExecutionOutput(cellId, output, stream) {
+        const outputDiv = document.getElementById(cellId + "-output");
+        if (!outputDiv) return;
+
+        // Remove any existing status messages
+        const statusEl = outputDiv.querySelector('.execution-status');
+        if (statusEl) statusEl.remove();
+
+        // Create or get the output content div
+        let contentDiv = outputDiv.querySelector('.output-content');
+        if (!contentDiv) {
+          contentDiv = document.createElement('div');
+          contentDiv.className = 'output-content';
+          contentDiv.style.cssText = `
+            font-family: var(--vscode-editor-font-family, monospace);
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--vscode-terminal-background);
+            border: 1px solid var(--vscode-textBlockQuote-border);
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+          `;
+          outputDiv.appendChild(contentDiv);
+        }
+
+        // Create output line with appropriate styling
+        const outputLine = document.createElement('div');
+        outputLine.style.color = stream === 'stderr' 
+          ? 'var(--vscode-terminal-ansiRed)' 
+          : 'var(--vscode-terminal-foreground)';
+        outputLine.textContent = output;
+        contentDiv.appendChild(outputLine);
+
+        // Auto-scroll to bottom
+        contentDiv.scrollTop = contentDiv.scrollHeight;
+      }
+
+      function handleCellExecutionCompleted(cellId, exitCode, hasOutput) {
+        const runButton = document.querySelector(`#${cellId}`)
+          ?.closest(".interactive-notebook-cell")
+          ?.querySelector(".run-cell-button");
+        const outputDiv = document.getElementById(cellId + "-output");
+
+        if (runButton) {
+          runButton.disabled = false;
+          if (exitCode === 0) {
+            runButton.innerHTML = '<span class="icon">✅</span> Run Cell';
+            setTimeout(() => {
+              runButton.innerHTML = '<span class="icon">▶️</span> Run Cell';
+            }, 2000);
+          } else {
+            runButton.innerHTML = '<span class="icon">❌</span> Error';
+            setTimeout(() => {
+              runButton.innerHTML = '<span class="icon">▶️</span> Run Cell';
+            }, 3000);
+          }
+        }
+
+        if (outputDiv && !hasOutput) {
+          // Show a message if there was no output
+          outputDiv.innerHTML = '<div class="execution-status" style="color: var(--vscode-descriptionForeground); font-style: italic;">Cell executed successfully (no output)</div>';
+        }
+      }
+
+      function handleCellExecutionError(cellId, error) {
+        const runButton = document.querySelector(`#${cellId}`)
+          ?.closest(".interactive-notebook-cell")
+          ?.querySelector(".run-cell-button");
+        const outputDiv = document.getElementById(cellId + "-output");
+
+        if (runButton) {
+          runButton.disabled = false;
+          runButton.innerHTML = '<span class="icon">❌</span> Error';
+          setTimeout(() => {
+            runButton.innerHTML = '<span class="icon">▶️</span> Run Cell';
+          }, 3000);
+        }
+
+        if (outputDiv) {
+          outputDiv.style.display = "block";
+          outputDiv.innerHTML = `
+            <div class="execution-error" style="
+              color: var(--vscode-terminal-ansiRed);
+              background: var(--vscode-inputValidation-errorBackground);
+              border: 1px solid var(--vscode-inputValidation-errorBorder);
+              padding: 0.5rem;
+              border-radius: 4px;
+              margin: 0.5rem 0;
+            ">
+              <strong>Execution Error:</strong><br>
+              ${error}
+            </div>
+          `;
+        }
+      }
+
+      // Listen for messages from the extension
+      window.addEventListener("message", (event) => {
+        const message = event.data;
+        switch (message.command) {
+          case "updateSettings":
+            // Update UI based on current settings
+            Object.assign(currentSettings, message.settings);
+            updateControlsFromSettings();
+            updateOutputPreview();
+            break;
+          case "cellExecutionStarted":
+            handleCellExecutionStarted(message.cellId);
+            break;
+          case "cellExecutionOutput":
+            handleCellExecutionOutput(message.cellId, message.output, message.stream);
+            break;
+          case "cellExecutionCompleted":
+            handleCellExecutionCompleted(message.cellId, message.exitCode, message.hasOutput);
+            break;
+          case "cellExecutionError":
+            handleCellExecutionError(message.cellId, message.error);
+            break;
+        }
+      });
+
+      function updateControlsFromSettings() {
+        document.getElementById("timestamp-toggle").checked =
+          currentSettings.timestamp;
+        document.getElementById("context-toggle").checked =
+          currentSettings.includeSourceContext;
+        document.getElementById("active-only-toggle").checked =
+          currentSettings.activeNotebookOnly;
+        document.getElementById("strip-ansi-toggle").checked =
+          currentSettings.stripAnsi;
+        document.getElementById("channel-mode-select").value =
+          currentSettings.channelMode;
+        document.getElementById("debounce-input").value =
+          currentSettings.debounceMs;
+        document.getElementById("max-chunk-input").value =
+          currentSettings.maxChunkSize;
+        document.getElementById("clear-on-notebook-clear-toggle").checked =
+          currentSettings.clearOnNotebookClear;
+        document.getElementById("include-text-plain-toggle").checked =
+          currentSettings.includeTextPlain;
+        document.getElementById("debug-toggle").checked = currentSettings.debug;
+      }
+
+      function resetSettingsToDefault() {
+        // Reset current settings to defaults
+        Object.assign(currentSettings, defaultSettings);
+
+        // Update all controls
+        updateControlsFromSettings();
+
+        // Send reset command to VS Code
+        vscode.postMessage({
+          command: "resetSettings",
+        });
+
+        // Update preview
+        updateOutputPreview();
+
+        // Show confirmation
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<span class="icon">✅</span>Settings Reset!';
+        setTimeout(() => {
+          button.innerHTML = originalText;
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>

@@ -102,14 +102,17 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p .",
+    "compile": "npm run clean && npm run build:ts && npm run copy:assets",
+    "build:ts": "tsc -p .",
+    "copy:assets": "mkdir -p out/assets && cp src/*.html out/assets/ 2>/dev/null || true",
     "watch": "tsc -w -p .",
-    "package": "npx @vscode/vsce package"
+    "package": "npx @vscode/vsce package",
+    "clean": "rm -rf out"
   },
   "devDependencies": {
-    "@types/node": "^20.11.30",
-    "@vscode/vsce": "^2.15.0",
-    "typescript": "^5.4.5"
+    "@types/node": "^22.5.0",
+    "@vscode/vsce": "^3.1.0",
+    "typescript": "^5.6.0"
   },
   "dependencies": {
     "@types/vscode": "^1.84.0"

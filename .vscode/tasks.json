@@ -2,9 +2,18 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "npm: compile",
+      "label": "compile-for-debug",
       "type": "shell",
       "command": "node node_modules/typescript/bin/tsc -p .",
+      "problemMatcher": "$tsc",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "options": { "cwd": "${workspaceFolder}" }
+    },
+    {
+      "label": "npm: compile",
+      "type": "shell",
+      "command": "npm run compile",
       "problemMatcher": "$tsc",
       "group": { "kind": "build", "isDefault": true },
       "presentation": { "reveal": "always", "panel": "shared", "clear": true },

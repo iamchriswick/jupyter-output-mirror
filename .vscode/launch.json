@@ -11,7 +11,7 @@
         "--user-data-dir=${workspaceFolder}/.vscode-devhost/user-data"
       ],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
-      "preLaunchTask": "npm: compile",
+      "preLaunchTask": "compile-for-debug",
       "env": { "NODE_NO_WARNINGS": "1" }
     }
   ]

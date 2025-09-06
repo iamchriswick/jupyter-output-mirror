@@ -1,3 +1,22 @@
 {
-  "workbench.colorTheme": "Outrun Night Meets Synthwave"
+  "workbench.colorTheme": "Outrun Night Meets Synthwave",
+  "go.toolsManagement.checkForUpdates": "local",
+  "go.useLanguageServer": true,
+  "go.gopath": "/go",
+  "lldb.executable": "/usr/bin/lldb",
+  "jupyter.kernels.excludePythonEnvironments": [
+    "/opt/conda/bin/python",
+    "/bin/python2",
+    "/usr/bin/python2",
+    "/usr/local/python/current/bin/python3",
+    "/usr/local/python/current/bin/python",
+    "/usr/bin/python3",
+    "/bin/python3"
+  ],
+  "jupyter.themeMatplotlibPlots": true,
+  "python.defaultInterpreterPath": "/opt/conda",
+  "jupyter.excludeUserSitePackages": true,
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda",
+  "python-envs.pythonProjects": []
 }
