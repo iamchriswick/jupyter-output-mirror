@@ -6,57 +6,129 @@
       "type": "shell",
       "command": "node node_modules/typescript/bin/tsc -p .",
       "problemMatcher": "$tsc",
-      "group": { "kind": "build", "isDefault": true },
-      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
-      "options": { "cwd": "${workspaceFolder}" }
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
       "label": "npm: compile",
       "type": "shell",
       "command": "npm run compile",
       "problemMatcher": "$tsc",
-      "group": { "kind": "build", "isDefault": true },
-      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
-      "options": { "cwd": "${workspaceFolder}" }
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
-      "label": "nuke",
+      "label": "nuke:safe",
       "type": "shell",
-      "command": "rm -rf out node_modules && rm package-lock.json && git clean -xfd -e .vscode -q && npm cache verify",
+      "command": "git clean -ffd -X -e .vscode && npm ci",
       "problemMatcher": [],
-      "group": {
-        "kind": "test",
-        "isDefault": false
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "nuke:full",
+      "type": "shell",
+      "command": "git clean -ffd -x -e .vscode && node -e \"try{require('fs').unlinkSync('package-lock.json')}catch{}\" && npm install --no-audit --no-fund",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "nuke:preview",
+      "type": "shell",
+      "command": "git clean -ffd -X -e .vscode -n",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
       }
     },
     {
       "label": "bootstrap",
       "type": "shell",
-      "command": "[ -f package-lock.json ] && npm ci || npm install; npm run compile",
-      "problemMatcher": ["$tsc"],
-      "group": {
-        "kind": "build",
-        "isDefault": true
+      "command": "if [ -f package-lock.json ]; then npm ci; else npm install; fi; npm run compile",
+      "windows": {
+        "command": "powershell -NoProfile -Command \"if (Test-Path package-lock.json) { npm ci } else { npm install }; npm run compile\""
+      },
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
       }
     },
     {
       "label": "rebuild",
       "type": "shell",
-      "command": "npm install; npm run compile",
-      "problemMatcher": ["$tsc"],
-      "group": {
-        "kind": "test",
-        "isDefault": false
+      "command": "npm ci || npm install; npm run compile",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
       }
     },
     {
-      "label": "nuke-rebuild",
-      "dependsOn": ["nuke", "rebuild"],
+      "label": "nuke-rebuild:safe",
+      "dependsOn": [
+        "nuke:safe",
+        "rebuild"
+      ],
       "dependsOrder": "sequence",
       "problemMatcher": [],
-      "group": {
-        "kind": "test",
-        "isDefault": false
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "nuke-rebuild:full",
+      "dependsOn": [
+        "nuke:full",
+        "rebuild"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
       }
     }
   ]
