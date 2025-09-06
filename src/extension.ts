@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { spawn } from "child_process";
 
 const STDOUT_MIME = "application/vnd.code.notebook.stdout";
 const STDERR_MIME = "application/vnd.code.notebook.stderr";
@@ -667,100 +668,198 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\\n")</
 </html>`;
 }
 
+// Function to get the active Jupyter interpreter
+async function getActiveJupyterInterpreter(): Promise<{
+  success: boolean;
+  interpreterPath?: string;
+  displayName?: string;
+  error?: string;
+}> {
+  try {
+    // Try to get the Python extension
+    const pythonExtension = vscode.extensions.getExtension("ms-python.python");
+    if (!pythonExtension) {
+      return {
+        success: false,
+        error: "Python extension not found",
+      };
+    }
+
+    // Ensure the Python extension is activated
+    if (!pythonExtension.isActive) {
+      await pythonExtension.activate();
+    }
+
+    // Try to get the active interpreter from the Python extension
+    const pythonApi = pythonExtension.exports;
+    if (pythonApi && pythonApi.environments) {
+      // Get the active interpreter for the current workspace
+      const activeInterpreter =
+        await pythonApi.environments.getActiveEnvironmentPath();
+      if (activeInterpreter && activeInterpreter.path) {
+        return {
+          success: true,
+          interpreterPath: activeInterpreter.path,
+          displayName: activeInterpreter.displayName || activeInterpreter.path,
+        };
+      }
+    }
+
+    // Fallback: try to detect from active notebook document
+    const activeNotebook = vscode.window.activeNotebookEditor?.notebook;
+    if (activeNotebook && activeNotebook.notebookType === "jupyter-notebook") {
+      // Try to get kernel info
+      try {
+        const kernelId = (activeNotebook.metadata as any)?.kernelspec?.name;
+        if (kernelId) {
+          return {
+            success: true,
+            interpreterPath: "python3", // Fallback to default
+            displayName: `Jupyter Kernel: ${kernelId}`,
+          };
+        }
+      } catch (err) {
+        console.log("Could not get kernel info:", err);
+      }
+    }
+
+    return {
+      success: false,
+      error: "No active Jupyter interpreter detected",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Failed to detect interpreter: ${error}`,
+    };
+  }
+}
+
+// Function to test Python interpreter
+async function testPythonInterpreter(
+  pythonPath: string
+): Promise<{ success: boolean; version?: string; error?: string }> {
+  return new Promise((resolve) => {
+    // Test the Python interpreter by getting version info
+    const testProcess = spawn(pythonPath, ["--version"], {
+      stdio: ["pipe", "pipe", "pipe"],
+      shell: true,
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    testProcess.stdout.on("data", (data: Buffer) => {
+      stdout += data.toString();
+    });
+
+    testProcess.stderr.on("data", (data: Buffer) => {
+      stderr += data.toString();
+    });
+
+    testProcess.on("close", (code: number) => {
+      if (code === 0) {
+        // Python version info often goes to stderr, try both
+        const version = (stdout + stderr).trim();
+        resolve({
+          success: true,
+          version: version || "Python (version info not available)",
+        });
+      } else {
+        resolve({
+          success: false,
+          error: `Exit code ${code}: ${stderr || stdout || "Unknown error"}`,
+        });
+      }
+    });
+
+    testProcess.on("error", (error: Error) => {
+      resolve({ success: false, error: `Failed to run: ${error.message}` });
+    });
+
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      testProcess.kill();
+      resolve({ success: false, error: "Test timeout (5s)" });
+    }, 5000);
+  });
+}
+
 // Function to execute notebook cells from the setup guide
 async function executeNotebookCellInWebview(
   cellId: string,
   code: string,
+  pythonPath: string,
   panel: vscode.WebviewPanel
 ) {
-  const { spawn } = require('child_process');
-  
   try {
     // Send initial status to webview
     panel.webview.postMessage({
-      command: 'cellExecutionStarted',
-      cellId: cellId
+      command: "cellExecutionStarted",
+      cellId: cellId,
     });
 
-    // Try to find Python executable
-    let pythonExecutable = 'python3';
-    try {
-      // Try to use the Python extension's interpreter if available
-      const pythonExtension = vscode.extensions.getExtension('ms-python.python');
-      if (pythonExtension && pythonExtension.isActive) {
-        const pythonPath = pythonExtension.exports?.settings?.getExecutionDetails?.()?.execCommand?.[0];
-        if (pythonPath) {
-          pythonExecutable = pythonPath;
-        }
-      }
-    } catch (error) {
-      // Fallback to default python3
-      console.log('Could not get Python extension path, using default');
-    }
+    // Use the provided Python path
+    const pythonExecutable = pythonPath || "python3";
 
     // Execute Python code
-    const pythonProcess = spawn(pythonExecutable, ['-c', code], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true
+    const pythonProcess = spawn(pythonExecutable, ["-c", code], {
+      stdio: ["pipe", "pipe", "pipe"],
+      shell: true,
     });
 
-    let stdout = '';
-    let stderr = '';
     let hasOutput = false;
 
-    pythonProcess.stdout.on('data', (data: Buffer) => {
+    pythonProcess.stdout.on("data", (data: Buffer) => {
       const output = data.toString();
-      stdout += output;
       hasOutput = true;
-      
+
       // Send incremental output to webview
       panel.webview.postMessage({
-        command: 'cellExecutionOutput',
+        command: "cellExecutionOutput",
         cellId: cellId,
         output: output,
-        stream: 'stdout'
+        stream: "stdout",
       });
     });
 
-    pythonProcess.stderr.on('data', (data: Buffer) => {
+    pythonProcess.stderr.on("data", (data: Buffer) => {
       const output = data.toString();
-      stderr += output;
       hasOutput = true;
-      
+
       // Send incremental output to webview
       panel.webview.postMessage({
-        command: 'cellExecutionOutput',
+        command: "cellExecutionOutput",
         cellId: cellId,
         output: output,
-        stream: 'stderr'
+        stream: "stderr",
       });
     });
 
-    pythonProcess.on('close', (code: number) => {
+    pythonProcess.on("close", (code: number) => {
       // Send completion status to webview
       panel.webview.postMessage({
-        command: 'cellExecutionCompleted',
+        command: "cellExecutionCompleted",
         cellId: cellId,
         exitCode: code,
-        hasOutput: hasOutput
+        hasOutput: hasOutput,
       });
     });
 
-    pythonProcess.on('error', (error: Error) => {
+    pythonProcess.on("error", (error: Error) => {
       // Send error to webview
       panel.webview.postMessage({
-        command: 'cellExecutionError',
+        command: "cellExecutionError",
         cellId: cellId,
-        error: error.message
+        error: error.message,
       });
     });
-
   } catch (error) {
     // Send error to webview
     panel.webview.postMessage({
-      command: 'cellExecutionError',
+      command: "cellExecutionError",
       cellId: cellId,
-      error: `Failed to execute Python code: ${error}`
+      error: `Failed to execute Python code: ${error}`,
     });
   }
 }
@@ -1174,11 +1273,75 @@ export async function activate(context: vscode.ExtensionContext) {
                   }
                   break;
 
+                case "getActiveJupyterInterpreter":
+                  try {
+                    const result = await getActiveJupyterInterpreter();
+                    panel.webview.postMessage({
+                      command: "activeJupyterInterpreterResult",
+                      success: result.success,
+                      interpreterPath: result.interpreterPath,
+                      displayName: result.displayName,
+                      error: result.error,
+                    });
+                  } catch (error) {
+                    panel.webview.postMessage({
+                      command: "activeJupyterInterpreterResult",
+                      success: false,
+                      error: `Detection failed: ${error}`,
+                    });
+                  }
+                  break;
+
+                case "selectJupyterInterpreter":
+                  try {
+                    // Trigger the Jupyter interpreter selection command
+                    await vscode.commands.executeCommand(
+                      "jupyter.selectJupyterInterpreter"
+                    );
+                    // After selection, get the new active interpreter
+                    setTimeout(async () => {
+                      const result = await getActiveJupyterInterpreter();
+                      panel.webview.postMessage({
+                        command: "activeJupyterInterpreterResult",
+                        success: result.success,
+                        interpreterPath: result.interpreterPath,
+                        displayName: result.displayName,
+                        error: result.error,
+                      });
+                    }, 1000); // Give some time for the selection to complete
+                  } catch (error) {
+                    vscode.window.showErrorMessage(
+                      `Failed to open interpreter selection: ${error}`
+                    );
+                  }
+                  break;
+
+                case "testPythonInterpreter":
+                  try {
+                    const result = await testPythonInterpreter(
+                      message.pythonPath
+                    );
+                    panel.webview.postMessage({
+                      command: "pythonTestResult",
+                      success: result.success,
+                      version: result.version,
+                      error: result.error,
+                    });
+                  } catch (error) {
+                    panel.webview.postMessage({
+                      command: "pythonTestResult",
+                      success: false,
+                      error: `Test failed: ${error}`,
+                    });
+                  }
+                  break;
+
                 case "executeNotebookCell":
                   try {
                     await executeNotebookCellInWebview(
                       message.cellId,
                       message.code,
+                      message.pythonPath || "python3",
                       panel
                     );
                   } catch (error) {

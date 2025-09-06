@@ -453,13 +453,15 @@
               contenteditable="true"
               id="timestamp-example"
               spellcheck="false"
-            >
-              import time import sys print("Testing timestamp output...")
-              time.sleep(0.5) print("Message 1: Check if timestamps appear")
-              time.sleep(0.5) sys.stderr.write("Error message: Also check stderr
-              timestamps\n") print("Message 2: Toggle the timestamp setting
-              above and re-run!")
-            </div>
+            >import time
+import sys
+
+print("Testing timestamp output...")
+time.sleep(0.5)
+print("Message 1: Check if timestamps appear")
+time.sleep(0.5)
+sys.stderr.write("Error message: Also check stderr timestamps\n")
+print("Message 2: Toggle the timestamp setting above and re-run!")</div>
             <div
               class="cell-output"
               id="timestamp-example-output"
@@ -816,6 +818,52 @@ print("Open multiple notebooks and run this cell to see the difference!")</pre
       </div>
     </div>
 
+    <!-- Python Interpreter Selection -->
+    <div class="demo-section">
+      <h2>🐍 Python Interpreter Setup</h2>
+      <p>
+        We'll automatically detect your active Jupyter session's Python interpreter:
+      </p>
+      
+      <div class="setting-control">
+        <div class="setting-header">
+          <span class="setting-name">Active Jupyter Interpreter</span>
+          <button class="action-button secondary" onclick="detectJupyterInterpreter()" id="detect-button">
+            <span class="icon">🔍</span> Detect Interpreter
+          </button>
+        </div>
+        <div class="setting-description">
+          Auto-detect the Python interpreter from your active Jupyter session. This ensures the setup guide uses the same environment as your notebooks.
+        </div>
+        
+        <!-- Interpreter Status Display -->
+        <div id="interpreter-status" style="margin-top: 1rem; padding: 0.8rem; border-radius: 6px; display: none;">
+          <div id="interpreter-info"></div>
+        </div>
+        
+        <!-- Manual Selection Fallback -->
+        <div id="manual-selection" style="display: none; margin-top: 1rem;">
+          <div style="margin-bottom: 1rem;">
+            <strong>No active Jupyter session detected.</strong> You can manually select a Python interpreter:
+          </div>
+          <button class="action-button" onclick="selectJupyterInterpreter()">
+            <span class="icon">🐍</span> Select Jupyter Interpreter
+          </button>
+          <div style="font-size: 0.8rem; color: var(--vscode-descriptionForeground); margin-top: 0.5rem;">
+            This will open VS Code's Jupyter interpreter selection dialog.
+          </div>
+        </div>
+        
+        <!-- Test Interpreter Button -->
+        <div style="margin-top: 1rem;" id="test-section" style="display: none;">
+          <button class="action-button secondary" onclick="testDetectedInterpreter()" id="test-button">
+            <span class="icon">🧪</span> Test Interpreter
+          </button>
+          <span id="test-result" style="margin-left: 1rem; font-size: 0.9rem;"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Demo Notebook Cells -->
     <div class="demo-section">
       <h2>📓 Try These Notebook Examples</h2>
@@ -998,6 +1046,13 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
         debug: false,
       };
 
+      // Python interpreter settings - updated to use auto-detection
+      let detectedInterpreter = {
+        path: null,
+        displayName: null,
+        isDetected: false
+      };
+
       // Default settings for reset functionality
       const defaultSettings = {
         timestamp: true,
@@ -1083,6 +1138,151 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
         });
       }
 
+      function detectJupyterInterpreter() {
+        const detectButton = document.getElementById("detect-button");
+        const statusDiv = document.getElementById("interpreter-status");
+        const infoDiv = document.getElementById("interpreter-info");
+        const manualSection = document.getElementById("manual-selection");
+        const testSection = document.getElementById("test-section");
+        
+        // Update button state
+        const originalText = detectButton.innerHTML;
+        detectButton.innerHTML = '<span class="icon">⏳</span> Detecting...';
+        detectButton.disabled = true;
+        
+        // Hide previous results
+        statusDiv.style.display = "none";
+        manualSection.style.display = "none";
+        testSection.style.display = "none";
+
+        // Send detection request to extension
+        vscode.postMessage({
+          command: "getActiveJupyterInterpreter"
+        });
+
+        // Reset button after timeout
+        setTimeout(() => {
+          if (detectButton.disabled) {
+            detectButton.innerHTML = originalText;
+            detectButton.disabled = false;
+          }
+        }, 10000);
+      }
+
+      function selectJupyterInterpreter() {
+        // Trigger VS Code's Jupyter interpreter selection
+        vscode.postMessage({
+          command: "selectJupyterInterpreter"
+        });
+      }
+
+      function testDetectedInterpreter() {
+        if (!detectedInterpreter.path) {
+          document.getElementById("test-result").innerHTML = 
+            '<span style="color: var(--vscode-charts-red);">❌ No interpreter detected</span>';
+          return;
+        }
+
+        const testButton = document.getElementById("test-button");
+        const resultSpan = document.getElementById("test-result");
+        
+        // Update button state
+        const originalText = testButton.innerHTML;
+        testButton.innerHTML = '<span class="icon">⏳</span> Testing...';
+        testButton.disabled = true;
+        resultSpan.textContent = "";
+
+        // Send test request to extension
+        vscode.postMessage({
+          command: "testPythonInterpreter",
+          pythonPath: detectedInterpreter.path
+        });
+
+        // Reset button after timeout
+        setTimeout(() => {
+          if (testButton.disabled) {
+            testButton.innerHTML = originalText;
+            testButton.disabled = false;
+            if (!resultSpan.textContent) {
+              resultSpan.innerHTML = '<span style="color: var(--vscode-charts-red);">⚠️ Test timeout</span>';
+            }
+          }
+        }, 10000);
+      }
+
+      function handleActiveJupyterInterpreterResult(success, interpreterPath, displayName, error) {
+        const detectButton = document.getElementById("detect-button");
+        const statusDiv = document.getElementById("interpreter-status");
+        const infoDiv = document.getElementById("interpreter-info");
+        const manualSection = document.getElementById("manual-selection");
+        const testSection = document.getElementById("test-section");
+        
+        // Reset button
+        detectButton.innerHTML = '<span class="icon">🔍</span> Detect Interpreter';
+        detectButton.disabled = false;
+
+        if (success) {
+          // Store detected interpreter
+          detectedInterpreter.path = interpreterPath;
+          detectedInterpreter.displayName = displayName;
+          detectedInterpreter.isDetected = true;
+          
+          // Show success status
+          statusDiv.style.display = "block";
+          statusDiv.style.background = "var(--vscode-textCodeBlock-background)";
+          statusDiv.style.border = "1px solid var(--vscode-charts-green)";
+          infoDiv.innerHTML = `
+            <div style="color: var(--vscode-charts-green); font-weight: bold; margin-bottom: 0.5rem;">
+              ✅ Jupyter Interpreter Detected
+            </div>
+            <div style="font-family: var(--vscode-editor-font-family); font-size: 0.9rem;">
+              <strong>Path:</strong> ${interpreterPath}<br>
+              <strong>Display Name:</strong> ${displayName}
+            </div>
+          `;
+          
+          // Show test section
+          testSection.style.display = "block";
+          manualSection.style.display = "none";
+        } else {
+          // Store that detection failed
+          detectedInterpreter.path = null;
+          detectedInterpreter.displayName = null;
+          detectedInterpreter.isDetected = false;
+          
+          // Show error status
+          statusDiv.style.display = "block";
+          statusDiv.style.background = "var(--vscode-inputValidation-warningBackground)";
+          statusDiv.style.border = "1px solid var(--vscode-charts-orange)";
+          infoDiv.innerHTML = `
+            <div style="color: var(--vscode-charts-orange); font-weight: bold; margin-bottom: 0.5rem;">
+              ⚠️ Auto-detection Failed
+            </div>
+            <div style="font-size: 0.9rem;">
+              ${error || "Could not detect active Jupyter interpreter"}
+            </div>
+          `;
+          
+          // Show manual selection option
+          manualSection.style.display = "block";
+          testSection.style.display = "none";
+        }
+      }
+
+      function handlePythonTestResult(success, version, error) {
+        const testButton = document.getElementById("test-button");
+        const resultSpan = document.getElementById("test-result");
+        
+        testButton.innerHTML = '<span class="icon">🧪</span> Test Interpreter';
+        testButton.disabled = false;
+
+        if (success) {
+          resultSpan.innerHTML = `<span style="color: var(--vscode-charts-green);">✅ ${version}</span>`;
+        } else {
+          resultSpan.innerHTML = `<span style="color: var(--vscode-charts-red);">❌ ${error}</span>`;
+        }
+      }
+
       function runNotebookCell(cellId) {
         const codeEditor = document.getElementById(cellId);
         const runButton = codeEditor
@@ -1097,6 +1297,15 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
 
         // Get the code content
         const code = codeEditor.textContent || codeEditor.innerText;
+
+        // Get the Python path to use - prefer detected interpreter
+        let pythonPath = detectedInterpreter.path || "python3";
+        
+        // If no interpreter detected, warn user
+        if (!detectedInterpreter.isDetected) {
+          outputDiv.style.display = "block";
+          outputDiv.innerHTML = '<div style="color: var(--vscode-charts-orange); padding: 0.5rem;">⚠️ No Jupyter interpreter detected. Using default "python3". Click "Detect Interpreter" above for better results.</div>';
+        }
 
         // Update button state
         const originalButtonContent = runButton.innerHTML;
@@ -1114,6 +1323,7 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
           command: "executeNotebookCell",
           cellId: cellId,
           code: code,
+          pythonPath: pythonPath
         });
 
         // Reset button after a timeout (in case the execution doesn't respond)
@@ -1303,6 +1513,12 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
           case "cellExecutionError":
             handleCellExecutionError(message.cellId, message.error);
             break;
+          case "pythonTestResult":
+            handlePythonTestResult(message.success, message.version, message.error);
+            break;
+          case "activeJupyterInterpreterResult":
+            handleActiveJupyterInterpreterResult(message.success, message.interpreterPath, message.displayName, message.error);
+            break;
         }
       });
 
@@ -1351,6 +1567,12 @@ sys.stderr.write("ℹ️  Check the Output channel for real-time updates!\n")</d
           button.innerHTML = originalText;
         }, 2000);
       }
+
+      // Auto-detect Jupyter interpreter on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        // Give the page a moment to fully load, then auto-detect
+        setTimeout(detectJupyterInterpreter, 500);
+      });
     </script>
   </body>
 </html>
