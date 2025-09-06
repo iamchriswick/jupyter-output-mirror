@@ -1,20 +1,16 @@
 {
-  "workbench.colorTheme": "SynthWave '84",
-  // "go.toolsManagement.checkForUpdates": "local",
-  // "go.useLanguageServer": true,
-  // "go.gopath": "/go",
-  // "lldb.executable": "/usr/bin/lldb",
-  "jupyter.kernels.excludePythonEnvironments": [
-    // "/opt/conda/bin/python",
-    "/bin/python2",
-    "/usr/bin/python2",
-    "/usr/local/python/current/bin/python3",
-    "/usr/local/python/current/bin/python",
-    "/usr/bin/python3",
-    "/bin/python3"
-  ],
-  // "python.defaultInterpreterPath": "/opt/conda",
-  "jupyter.themeMatplotlibPlots": true,
-  "jupyter.excludeUserSitePackages": true,
-  "mcpDiagnostics.showAutoRegistrationNotification": false
+  "workbench.colorTheme": "Outrun Electric Meets Synthwave"
+  // "jupyter.kernels.excludePythonEnvironments": [
+  //   // "/opt/conda/bin/python",
+  //   "/bin/python2",
+  //   "/usr/bin/python2",
+  //   "/usr/local/python/current/bin/python3",
+  //   "/usr/local/python/current/bin/python",
+  //   "/usr/bin/python3",
+  //   "/bin/python3"
+  // ],
+  // // "python.defaultInterpreterPath": "/opt/conda",
+  // "jupyter.themeMatplotlibPlots": true,
+  // "jupyter.excludeUserSitePackages": true,
+  // "mcpDiagnostics.showAutoRegistrationNotification": false
 }

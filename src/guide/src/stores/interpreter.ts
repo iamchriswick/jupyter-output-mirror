@@ -15,6 +15,13 @@ export interface InterpreterState {
   error?: string
 }
 
+export interface ExecutionResult {
+  success: boolean
+  output?: string
+  error?: string
+  executionTime?: number
+}
+
 export const useInterpreterStore = defineStore('interpreter', () => {
   // State
   const interpreter = ref<InterpreterState>({
@@ -29,6 +36,8 @@ export const useInterpreterStore = defineStore('interpreter', () => {
   // Computed
   const isReady = computed(() => interpreter.value.status === 'ready')
   const hasError = computed(() => interpreter.value.status === 'error')
+  const isLoading = computed(() => interpreter.value.status === 'initializing' || isInitializing.value)
+  const interpreterType = computed(() => interpreter.value.type)
   const canExecuteCode = computed(
     () =>
       isReady.value &&

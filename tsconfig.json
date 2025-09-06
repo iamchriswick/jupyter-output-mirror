@@ -13,6 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node", "vscode"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["out", "node_modules", "src/**/*.html"]
+  "include": ["src/extension/**/*.ts"],
+  "exclude": ["out", "node_modules", "src/**/*.html", "src/guide"]
 }

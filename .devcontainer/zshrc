@@ -1,0 +1,11 @@
+# ~/.zshrc for Jupyter Output Mirror DevContainer
+
+# --- Load custom configuration from workspace ---
+# This ensures shell config persists across container rebuilds
+WORKSPACE_ZSHRC="/workspaces/jupyter-output-mirror/.devcontainer/custom.zshrc"
+if [ -f "$WORKSPACE_ZSHRC" ]; then
+    source "$WORKSPACE_ZSHRC"
+fi
+
+# --- Default zsh setup ---
+# Keep any existing functionality
