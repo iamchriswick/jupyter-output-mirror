@@ -925,7 +925,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const ch = getChannel(doc);
       const withTs = cfg().get<boolean>("timestamp") ?? true;
       const withContext = cfg().get<boolean>("includeSourceContext") ?? true;
-      const max = cfg().get<number>("maxChunk") ?? 65536;
+      const max = cfg().get<number>("maxChunkSize") ?? 8192;
 
       let body = chunk;
       if (cfg().get<boolean>("stripAnsi")) body = stripAnsi(body);

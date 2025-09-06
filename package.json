@@ -82,11 +82,12 @@
           "default": true,
           "description": "Strip ANSI color codes before appending to Output."
         },
-        "jupyterOutputMirror.maxChunk": {
+        "jupyterOutputMirror.maxChunkSize": {
           "type": "number",
-          "default": 65536,
-          "minimum": 1024,
-          "description": "Maximum characters appended per change to prevent floods."
+          "default": 8192,
+          "minimum": 100,
+          "maximum": 100000,
+          "description": "Maximum characters per output chunk (larger chunks may be split)."
         },
         "jupyterOutputMirror.debug": {
           "type": "boolean",
